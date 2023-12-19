@@ -4,34 +4,159 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Classifier</title>
+    <title>Attire Classifier</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
 </head>
+
+<style>
+    .highlight {
+        background-color: yellow;
+        font-weight: bold;
+    }
+
+    .card-img-fixed-height {
+        height: 500px; 
+    }
+    .navbar {
+        background-color: #343a40;
+    }
+
+    .navbar-brand {
+        color: #ffffff;
+        font-size: 24px;
+    }
+    .container {
+        background-color: #ffffff;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-top: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    .card {
+        margin-bottom: 20px;
+    }
+    .result-card,
+    .gradcam-card {
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+    .card-title {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    .footer {
+        background-color: #343a40;
+        color: #ffffff;
+        padding: 10px 0;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        text-align: center;
+    }
+
+</style>
+
+
+
 <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand mx-auto" href="#">Attire Classifier</a>
+    </nav>
     <div class="container mt-5">
-        <h2 class="mb-4">Image Classifier</h2>
-        <form method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="image">Upload Image:</label>
-                <input type="file" class="form-control-file" name="image" accept=".jpg, .jpeg, .png" required>
+        <!-- <h2 class="mb-4">Image Classifier</h2> -->
+        <div class="row">
+            <div class="col-md-4 text-center">
+                <div class="highlighted-text">
+                    {% if request.method == 'POST' %}
+                        {% for attire in ['Shalwar Kameez', 'Balochi Attire', 'Kalash Attire', 'Ajrak'] %}
+                            <p id="{{ attire.lower().replace(' ', '') }}" class="{{ 'highlight' if predicted_class == attire else '' }}">{{ attire }}</p>
+                        {% endfor %}
+                    {% else %}
+                        <p>Shalwar Kameez</p>
+                        <p>Balochi Attire</p>
+                        <p>Kalash Attire</p>
+                        <p>Ajrak</p>
+                    {% endif %}
+                </div>
             </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+            <div class="col-md-8">
+                <form method="post" enctype="multipart/form-data" class="mt-4">
+                    <div class="form-group">
+                        <label for="image">Upload Image:</label>
+                        <input type="file" class="form-control-file" name="image" accept=".jpg, .jpeg, .png" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+       
+        
 
         {% if request.method == 'POST' %}
-            <div class="mt-5">
-                <h4>Result:</h4>
-                <img src="{{ url_for('static', filename='result_image.png') }}" class="img-fluid" alt="Result Image">
-            </div>
-            <div class="mt-5">
-                <h4>GradCam:</h4>
-                <img src="{{ url_for('static', filename='gradcam.png') }}" class="img-fluid" alt="GradCam Image">
+            <div class="row mt-5">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">Image</h4>
+                            <img src="{{ url_for('static', filename='result_image.png') }}" class="img-fluid rounded card-img-fixed-height"
+                                alt="Result Image">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="card-title">GradCam</h4>
+                            <img src="{{ url_for('static', filename='gradcam.png') }}" class="img-fluid rounded card-img-fixed-height"
+                                alt="GradCam Image">
+                        </div>
+                    </div>
+                </div>
             </div>
         {% endif %}
-    </div>
 
+    </div>
+    <footer class="mt-5 text-muted text-center">
+        <p>&copy; 2023 Attire Classifier. All rights reserved.</p>
+    </footer>
+    
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Replace 'predicted_class' with the actual predicted class received from Flask
+            var predictedClass = '{{ predicted_class }}';
+            // Log the predictedClass value to the browser console
+            console.log('Predicted Class:', predictedClass);
+
+            var attireElements = document.querySelectorAll('p');
+
+            attireElements.forEach(function (element) {
+                if (element.textContent.trim() === predictedClass) {
+                    element.classList.add('highlight');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
