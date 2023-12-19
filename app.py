@@ -15,7 +15,7 @@ Bootstrap(app)
 loadedModel = tf.keras.models.load_model('classifierModel.h5')
 
 # Define class labels
-class_labels = ['ajrak', 'balochi', 'kalash', 'shalwarKameez']
+class_labels = ['Ajrak', 'Balochi Attire', 'Kalash Attire', 'Shalwar Kameez']
 
 # Model-related functions
 def preprocess_input(img_array):
@@ -63,6 +63,7 @@ def save_and_display_gradcam(img_path, heatmap, cam_path, alpha=0.4):
 # Flask routes
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    predicted_class='None'
     if request.method == 'POST':
         # Handle the image uploaded by the user
         file = request.files['image']
@@ -82,7 +83,7 @@ def index():
             plt.imshow(img)
             plt.axis('off')
             predicted_class = class_labels[np.argmax(predictions)]
-            plt.title(predicted_class)
+            # plt.title(predicted_class)
             plt.savefig('static/result_image.png')  # Save the result image
 
             # Generate and save GradCam
@@ -90,7 +91,7 @@ def index():
             heatmap = make_gradcam_heatmap(img_array, loadedModel, "conv2d_1")
             save_and_display_gradcam(img_path, heatmap, 'static/gradcam.png')
 
-    return render_template('index.html')
+    return render_template('index.html', predicted_class = predicted_class)
 
 if __name__ == '__main__':
     app.run(debug=True)
